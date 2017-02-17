@@ -17,7 +17,7 @@ node {
       }
    }
    stage('Results') {
-   step([$class: 'JUnitResultArchiver', testResults: 'test-report.xml'])
+        step([$class: 'JUnitResultArchiver', testResults: '**/tmp/TEST-*.xml'])
 
    }
 }
