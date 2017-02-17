@@ -1,25 +1,22 @@
-pipeline {
-    agent any
-    stages {
- 
-       stage('Deploy MP') {
-            steps {
-                sh 'echo "Hello World"'
-                sh 'uptime'
-                echo "Multiline shell steps works too"
-                ls -lah
-                sh 'echo "CP deploy has passed"; exit 0'
-            }
-        }
-
-       stage('Build CP') {
-            steps {
-                sh 'echo "Hello World"'
-                echo "Multiline shell steps works too"
-                sh 'echo "CP deploy has failed"; exit 1'
-            }
-        }
-
-
-    }
+node {
+   def mvnHome
+   stage('MP Build and Deploy') { // for display purposes
+      // Get some code from a GitHub repository
+      git 'https://github.com/jglick/simple-maven-project-with-tests.git'
+      sh ' ls -l jenkins_pipeline_test/'
+      sh 'echo "MP deploy has passed"; exit 0'
+   }
+   stage('CP Build and Deploy') { // for display purposes
+      if (isUnix()) {
+         sh "'${mvnHome}/bin/mvn -v' "
+      } else {
+         sh 'echo "This is not a unix os"; exit 1'
+      }
+   }
+   stage('Results') {
+      junit '**/target/surefire-reports/TEST-*.xml'
+      archive 'target/*.jar'
+   }
 }
+
+
