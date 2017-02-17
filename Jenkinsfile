@@ -5,7 +5,7 @@ node {
   stage('MP Build and Deploy') { // for display purposes
       // Get some code from a GitHub repository
       git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
-      sh 'echo "SSH to GOD and run commands for deploy'
+      sh 'echo "SSH to GOD and run commands for deploy"'
       sh 'uptime'
       sh 'echo "MP deploy has passed"; exit 0'
    }
