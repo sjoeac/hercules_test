@@ -1,4 +1,4 @@
-parallel(firstTask: {
+parallel firstTask: {
 node ("MP")  {
 
   stage('MP Build ') { // for display purposes
@@ -44,6 +44,6 @@ node ("CP")  {
    }
 
 }
-})
+}
 
 
