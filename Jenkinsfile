@@ -16,7 +16,6 @@ node {
                         subject: 'project build successful',
                         to: 'stephen.c@bankbazaar.com'
 
-        }
 
 
 
