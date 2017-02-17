@@ -17,13 +17,7 @@ node {
       }
    }
    stage('Results') {
-try {
-  // test stuff
-} catch(err) {
-  // handle the exception; or ignore it
-} finally {
   step([$class: 'JUnitResultArchiver', testResults: '**/TEST-*.xml'])
-}
    }
 }
 
