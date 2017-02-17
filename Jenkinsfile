@@ -2,7 +2,7 @@ node {
    def mvnHome
    mvnHome = '/usr'   
 
-  stage('MP Build and Deploy') { // for display purposes
+  stagr('MP Build and Deploy') { // for display purposes
       // Get some code from a GitHub repository
       git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
       sh 'echo "SSH to GOD and run commands for deploy"'
@@ -17,8 +17,13 @@ node {
       }
    }
    stage('Results') {
-        step([$class: 'JUnitResultArchiver', testResults: '**/tmp/TEST-*.xml'])
-
+try {
+  // test stuff
+} catch(err) {
+  // handle the exception; or ignore it
+} finally {
+  step([$class: 'JUnitResultArchiver', testResults: '**/TEST-*.xml'])
+}
    }
 }
 
