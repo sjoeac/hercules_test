@@ -1,3 +1,4 @@
+parallel {
 node  {
 
 
@@ -20,5 +21,6 @@ node  {
          sh 'echo "ALL TESTS PASS" exit 0'
       
 
+   }
    }
 }
