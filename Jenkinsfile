@@ -2,7 +2,7 @@ node {
    def mvnHome
    mvnHome = '/usr'   
 
-  stagr('MP Build and Deploy') { // for display purposes
+  stage('MP Build and Deploy') { // for display purposes
       // Get some code from a GitHub repository
       git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
       sh 'echo "SSH to GOD and run commands for deploy"'
