@@ -1,8 +1,10 @@
 node {
    def mvnHome
-   stage('MP Build and Deploy') { // for display purposes
+   mvnHome = '/usr'   
+
+  stage('MP Build and Deploy') { // for display purposes
       // Get some code from a GitHub repository
-      git 'https://github.com/jglick/simple-maven-project-with-tests.git'
+      git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
       sh ' ls -l jenkins_pipeline_test/'
       sh 'echo "MP deploy has passed"; exit 0'
    }
