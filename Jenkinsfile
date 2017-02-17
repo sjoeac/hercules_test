@@ -43,7 +43,7 @@ node ("CP")  {
          sh 'echo "ALL TESTS PASS" exit 0'
    }
 
-
+}
 })
 
 
