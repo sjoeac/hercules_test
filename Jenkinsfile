@@ -1,3 +1,4 @@
+parallel {
 node {
    def mvnHome
    mvnHome = '/usr'   
@@ -32,6 +33,7 @@ echo ("Target: "+userInput['target'])
 
 
    }
+}
 }
 
 
