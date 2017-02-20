@@ -1,8 +1,5 @@
 node  {
 
-
-
-
   stage('MP Build and Deploy') { // for display purposes
       // Get some code from a GitHub repository
       git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
