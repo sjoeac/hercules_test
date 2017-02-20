@@ -17,7 +17,6 @@ node  {
    stage('Results') {
 //         junit testresults: '/tmp/test.xml'
          sh 'echo "ALL TESTS PASS" exit 0'
-
       
    }
 }
