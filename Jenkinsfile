@@ -2,7 +2,7 @@ node  {
 
   stage('MP Build and Deploy') { // for display purposes
       // Get some code from a GitHub repository
-      git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
+      // git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
       sh 'echo "SSH to GOD and run commands for deploy"'
       sh 'uptime'
       sh 'echo "MP deploy has passed"; exit 0'
@@ -15,8 +15,20 @@ node  {
       }
    }
    stage('Results') {
-//         junit testresults: '/tmp/test.xml'
+       if (params.Services)  {
+         print "DEBUG: parameter Services = " + params.Services
+       }
+       
+       if (params.Bucket)  {
+         print "DEBUG: parameter Bervices = " + params.Bucket
+        }
+        
+        if (params.Version)  {
+            print "DEBUG: parameter Vervices = " +  params.Version
+        }
+
          sh 'echo "ALL TESTS PASS" exit 0'
-      
+
    }
 }
+
