@@ -14,9 +14,16 @@ $response = decode_json ($response);
 my $filter;
 foreach my $key (@{$response}) {
     foreach my $key2 (@{$key->{"Checks"}}) {
-        print Dumper ($key2);
-        $filter->{$key2->{'CheckID'}}->{$key2->{'Node'}} = $key2->{'Status'} 	
+       next if ( $key2->{'Status'} =~/passing/g);
+       $filter->{$key2->{'CheckID'}}->{$key2->{'Node'}} = $key2->{'Status'} 	
     }
 }
 
-print Dumper ($filter);
+if (defined ($filter)) {
+    print "Service " . $service . " : FAILURES " . Dumper ($filter) . "\n";
+    exit 1;
+} else
+{
+    print "Service " . $service . " : Cluster Healthy" . "\n";
+    exit 0;
+}
