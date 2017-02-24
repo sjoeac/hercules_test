@@ -11,6 +11,11 @@ my $response = (get $url);
 die "Error connecting to $url" unless defined $response;
 $response = decode_json ($response);
 
+if (scalar(@$response) == 0) {
+    print "Service $service : INVALID SERVICE NAME \n";
+    exit 1;
+} 
+
 my $filter;
 foreach my $key (@{$response}) {
     foreach my $key2 (@{$key->{"Checks"}}) {
