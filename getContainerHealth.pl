@@ -1,34 +1,52 @@
-#!/usr/bin/perl
+node  {
+                git url: 'https://github.com/sjoeac/jenkins_pipeline_test.git'
+                sh 'chmod +x getContainerHealth.pl'
+}
 
-use LWP::Simple;
-use JSON;
-use Data::Dumper;
+parallel (
+    "MP" : { 
+        if ( (params.Services =~ /MP/)  || (params.Services =~ /ALL/)  )    {  
+             node { 
+               stage('MP Build and Deploy') { // for display purposes
+               if ((params.Services == null) || (params.Bucket == null) || (params.Version == null)) {
+                    sh 'echo "ERROR: Null Paramaters"; exit 1'
+               }
+                print "DEBUG: parameter Bervices = " + params.Bucket
+                print "DEBUG: parameter Vervices = " +  params.Version
+                
+                sh "sleep 40s" 
+                String commandToRun = '\"sudo salt -C "B053APP*" cmd.run "uptime"\" '
+                sh " ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/id_ecdsa  infra@10.1.246.251  /bin/bash -c '${commandToRun}' "
+                sh 'echo "Get Container Health for Service: MP"'
+                sh './getContainerHealth.pl mp'
+                sh 'if [ "$?" = "0" ]; then echo "MP deploy has passed"; fi '
+               }
+            } 
+        }
 
-my $service = $ARGV[0] or die "Please add service as argument\n";
-my $url = ' http://10.1.25.16:8500/v1/health/service/' . $service;
+    },
 
-my $response = (get $url);
-die "Error connecting to $url" unless defined $response;
-$response = decode_json ($response);
+    "CP" : { 
+        if ( (params.Services =~ /CP/)  || (params.Services =~ /ALL/)  )    {  
+            node  { 
+               stage('CP Build and Deploy') { // for display purposes
+                  sh 'echo "Get Container Health for Service: CP"'
+                }
+            } 
+         }
+    }
+)
 
-if (scalar(@$response) == 0) {
-    print "Service $service : INVALID SERVICE NAME \n";
-    exit 1;
-} 
-
-my $filter;
-foreach my $key (@{$response}) {
-    foreach my $key2 (@{$key->{"Checks"}}) {
-       next if ( $key2->{'Status'} =~/passing/g);
-       $filter->{$key2->{'CheckID'}}->{$key2->{'Node'}} = $key2->{'Status'} 	
+node {
+    stage('Results') {
+        if (params.Bucket)  {
+            print "DEBUG: parameter Bervices = " + params.Bucket
+        }
+        sleep 10
+        if (params.Version)  {
+            print "DEBUG: parameter Vervices = " +  params.Version
+        }
+        sh 'echo "ALL TESTS PASS" exit 0'
     }
 }
 
-if (defined ($filter)) {
-    print "Service " . $service . " : FAILURES " . Dumper ($filter) . "\n";
-    exit 1;
-} else
-{
-    print "Service " . $service . " : Cluster Healthy" . "\n";
-    exit 0;
-}
