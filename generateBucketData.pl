@@ -8,8 +8,8 @@ use Sys::Hostname;
 
 my $tagno = $ARGV[0] or die "Please add tagno as argument\n";
 my $path = $ENV{WORKSPACE} || "/tmp";
-my $bucket1File = "$path/bucket1_" . $tagno .".json";
-my $bucket2File = "$path/bucket2_" . $tagno .".json";
+my $bucket1File = "$path/bucket1-" . $tagno .".json";
+my $bucket2File = "$path/bucket2-" . $tagno .".json";
 
 if ((-e $bucket1File ) && ( -e $bucket1File)) {
     print "Bucket Files already exists\n";
