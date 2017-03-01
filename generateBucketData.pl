@@ -47,6 +47,8 @@ if ((defined $bucket1) && (defined $bucket2) ) {
     print $fh encode_json($bucket2);
     close $fh;
     print "Bucket Files have been generated\n";
+    print "Bucket1: $bucket1File...\n";
+    print "Bucket2: $bucket2File...\n";
     exit 0;
 }
 else {
