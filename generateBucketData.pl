@@ -16,29 +16,37 @@ if (! defined $response) {
     exit 1;
 } 
 
-my $filteredB1;
-my $filtered;
+my $bucket1;
+my $bucket2;
 foreach my $service (keys %{$response}) {
-print $service . "\n";
+next unless $service !~ /haproxy/;
+    my $url = ' http://10.1.25.16:8500/v1/health/service/' . $service;
+    my $response = (get $url);
+    die "Error connecting to $url" unless defined $response;
+    $response = decode_json ($response);
 
-my $url = ' http://10.1.25.16:8500/v1/health/service/' . $service;
-
-my $response = (get $url);
-die "Error connecting to $url" unless defined $response;
-$response = decode_json ($response);
-
-foreach my $key (@{$response}) {
-    if (!defined $filteredB1->{$service}) {
-        push @{$filteredB1->{$service}}, $key->{'Node'}->{"Node"} if (!defined $filteredB1->{$service});
+    foreach my $key (@{$response}) {
+        if (!defined $bucket1->{$service}) {
+        push @{$bucket1->{$service}}, $key->{'Node'}->{"Node"} if (!defined $bucket1->{$service});
         next;
     }
-
-    push @{$filtered->{$service}}, $key->{'Node'}->{"Node"}
+    push @{$bucket2->{$service}}, $key->{'Node'}->{"Node"}
     }
 }
 
+if ((defined $bucket1) && (defined $bucket2) ) {
+open my $fh, ">", "bucket1_" . $tag_no .".json";
+print $fh encode_json($bucket1);
+close $fh;
+open my $fh, ">", "bucket2_" . $tag_no .".json";
+print $fh encode_json($bucket2);
+close $fh;
 
-print Dumper ($filtered);
-print "____________________";
-print Dumper ($filteredB1);
+print "Bucket Files have been generated\n";
+}
 
+else {
+print "ERROR: Bucket File not generated\n";
+exit 1;
+
+}
