@@ -6,7 +6,7 @@ use JSON;
 use Data::Dumper;
 use Sys::Hostname;
 
-my $tagno = $ARGV[0] or die "Please add tagno as argument\n";
+my $tagno = $ARGV[0] or die "Please add <tagno> as argument\n";
 my $path = $ENV{WORKSPACE} || "/tmp";
 my $bucket1File = "$path/bucket1-" . $tagno .".json";
 my $bucket2File = "$path/bucket2-" . $tagno .".json";

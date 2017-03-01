@@ -4,7 +4,6 @@ use strict;
 use LWP::Simple;
 use JSON;
 use Data::Dumper;
-use Sys::Hostname;
 
 my $tagno = $ARGV[0] or die "Please add <tagno> <bucket1|bucket2> <service> as arguments\n";
 my $bucket = $ARGV[1] or die "Please add <tagno> <bucket1|bucket2> <service> as arguments\n";
