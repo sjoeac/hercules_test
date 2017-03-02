@@ -28,7 +28,7 @@ def main (serviceName){
                   
     // Sleep for 10 mins.
     // Get Container Health
-    def getContainterHealth = sh(script: "./getContainerHealth.pl ${serviceName}", returnStdout: true)
+    def getContainterHealth = sh(script: "./getContainerHealth.pl ${serviceName} all", returnStdout: true)
     print "Container Hosts: HEALTH "  + getContainterHealth
                  
 }
@@ -45,11 +45,13 @@ node {
 parallel (
     "MP" : { 
         node { 
-            stage('MP Build and Deploy') { // for display purposes
+            if ( (params.Services =~ /MP/)  || (params.Services =~ /ALL/)  )    {  
+                stage('MP Build and Deploy') { // for display purposes
                 def serviceName = 'MP'
-                if ( (params.Services =~ /MP/)  || (params.Services =~ /ALL/)  )    {  
                     if ( (params.Bucket =~ /failures/)  )    {  
-                 
+                       def getContainterHealth = sh(script: "./getContainerHealth.pl ${serviceName} list", returnStdout: true)
+                       print "Container Hosts: HEALTH "  + getContainterHealth
+               
                     }
                     else {
                         main(serviceName);
@@ -62,11 +64,13 @@ parallel (
 
     "CP" : { 
         node  { 
-            stage('CP Build and Deploy') { // for display purposes
+            if ( (params.Services =~ /CP/)  || (params.Services =~ /ALL/)  )    {  
+                stage('CP Build and Deploy') { // for display purposes
                 def serviceName = 'CP'
-                if ( (params.Services =~ /CP/)  || (params.Services =~ /ALL/)  )    {  
                     if ( (params.Bucket =~ /failures/)  )    {  
-    
+                            def getContainterHealth = sh(script: "./getContainerHealth.pl ${serviceName} list", returnStdout: true)
+                            print "Container Hosts: HEALTH "  + getContainterHealth
+  
                     }
                     else {
                         main(serviceName);
@@ -83,3 +87,4 @@ node {
         sh 'echo "ALL TESTS PASS" exit 0'
     }
 }
+
