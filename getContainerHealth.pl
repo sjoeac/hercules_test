@@ -4,7 +4,7 @@ use LWP::Simple;
 use JSON;
 use Data::Dumper;
 
-my $service = $ARGV[0] or die "Please add service as argument\n";
+my $service = lc $ARGV[0] or die "Please add service as argument\n";
 my $url = ' http://10.1.25.16:8500/v1/health/service/' . $service;
 
 my $response = (get $url);
