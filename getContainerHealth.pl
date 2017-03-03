@@ -5,7 +5,7 @@ use JSON;
 use Data::Dumper;
 
 my $service = lc $ARGV[0] or die "Please add service <list|all> as argument\n";
-my $list = lc $ARGV[1] or die "Please add service <list|all> as argument\n";
+my $flag = lc $ARGV[1] or die "Please add service <servers|debug> as argument\n";
 my $url = ' http://10.1.25.16:8500/v1/health/service/' . $service;
 
 my $response = (get $url);
@@ -27,16 +27,15 @@ foreach my $key (@{$response}) {
     }
 }
 
-if ($list =~/list/) {
+if ((defined $filter) && ($flag =~/servers/i)) {
     print join (",",@failed_hosts);
     exit 1;
 }
-elsif (defined ($filter)) {
+elsif ((defined $filter) && ($flag =~/debug/i)) {
     print "Service " . $service . " : FAILURES " . Dumper ($filter) . "\n";
     exit 1;
 } 
-else
-{
+elsif (!defined $filter) {
     print "Service " . $service . " : Cluster Healthy" . "\n";
     exit 0;
 }
