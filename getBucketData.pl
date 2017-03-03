@@ -36,8 +36,6 @@ my $json;
   close $fh;
 }
 my $data = decode_json($json);
-print Dumper (@{$data->{$service}});
-print "\n\n";
 
 if ($bucket=~/bucket1/) {
     print join(",", @{$data->{$service}});
