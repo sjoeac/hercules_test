@@ -10,7 +10,7 @@ def runSaltMasterHighState(bucketHosts) {
 
 def main (serviceName){
     //Git Update and Generate Bucket Data for this Tag
-//    sh(script: "git reset --hard HEAD; git pull origin master;", returnStdout: true);
+    //sh(script: "git reset --hard HEAD; git pull origin master;", returnStdout: true);
     sh(script: "./generateBucketData.pl ${env.Version}", returnStdout: true);
     if ( (params.Bucket =~ /failures/)  )    {  
         def getFailedHosts = sh(script: "./getContainerHealth.pl ${serviceName} servers ", returnStdout: true)
@@ -44,7 +44,7 @@ def main (serviceName){
 //***********************************
 node {
     stage('Git Update: ' + params.Bucket +'-' + params.Version) { // for display purposes
-    //    git url: 'https://github.com/sjoeac/jenkins_pipeline_test.git';
+        git url: 'https://github.com/sjoeac/jenkins_pipeline_test.git';
         if ((params.Services == null) || (params.Bucket == null) || (params.Version == null)) {
             print "ERROR: Null Paramaters"; 
             sh 'exit 1'
