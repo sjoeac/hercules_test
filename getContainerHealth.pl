@@ -32,10 +32,10 @@ if ((defined $filter) && ($flag =~/servers/i)) {
     print join (",",@failed_hosts);
     exit 1;
 }
-if ((defined $filter) && ($flag =~/debug/i)) {
-    print "Service " . $service . " : FAILURES " . Dumper ($filter) . "\n";
-    exit 1;
-} 
+#if ((defined $filter) && ($flag =~/debug/i)) {
+#    print "Service " . $service . " : FAILURES " . Dumper ($filter) . "\n";
+#    exit 1;
+#} 
 if (!defined $filter) {
     print "Service " . $service . " : Cluster Healthy" . "\n";
     exit 0;
