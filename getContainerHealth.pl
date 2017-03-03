@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use strict;
 use LWP::Simple;
 use JSON;
 use Data::Dumper;
