@@ -10,12 +10,12 @@ def runSaltMasterHighState(serviceName, bucketHosts) {
 
 def main (serviceName){
     if (! fileExists("${WORKSPACE}/jenkins_pipeline_test/Jenkinsfile")) {
-       sh "chmod 777 ${WORKSPACE}; cd ${WORKSPACE};git clone https://github.com/sjoeac/jenkins_pipeline_test.git;";
-       sh " cp jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
-    }    
-    else {
-       sh(script: "cd ${WORKSPACE}/jenkins_pipeline_test; git reset --hard HEAD; git pull origin master;", returnStdout: true);
-       sh " cp ${WORKSPACE}/jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
+        sh "chmod 777 ${WORKSPACE}; cd ${WORKSPACE};git clone https://github.com/sjoeac/jenkins_pipeline_test.git;";
+        sh " cp jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
+   }    
+   else {
+        sh(script: "cd ${WORKSPACE}/jenkins_pipeline_test; git reset --hard HEAD; git pull origin master;", returnStdout: true);
+        sh " cp ${WORKSPACE}/jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
     }
     
     sh(script: " ${WORKSPACE}@tmp/generateBucketData.pl ${env.Version}", returnStdout: true);
@@ -47,9 +47,38 @@ def main (serviceName){
     }
 }
 
+
+def parallelConverge(ArrayList<String> instanceNames) {
+    def parallelNodes = [:]
+
+    for (int i = 0; i < instanceNames.size(); i++) {
+        def instanceName = instanceNames.get(i)
+        parallelNodes[instanceName] = this.getNodeForInstance(instanceName)
+    }
+
+    parallel parallelNodes
+}
+
+def Closure getNodeForInstance(String serviceName) {
+    return {
+        node {
+            if ( (params.Services =~ /^${serviceName}/)  || (params.Services =~ /ALL/)  )    {  
+                stage(serviceName + ' deploy' ) { // for display purposes
+                    main(serviceName)
+                }   
+            }
+         }
+    }
+}
+
+
+
 //***********************************
 // WORKFLOW
 //***********************************
+
+def instanceNames = ["cassandra", "hdfclimited", "dialerservice", "internal-cds", "exportservice", "cp", "gratter", "newgen", "bb-api", "roboArmService", "insurance-csdb", "notificationservice", "bb-sftp", "txnanalysis", "bankdataupload", "bankdb", "userreviewservice", "icici", "cds", "elasticsearch-prod", "centrelistingservice", "roboticArmService", "axis", "elasticsearch-elk", "csdb", "personalfinanceservice", "consul", "bankbridgeservice", "internal-cp", "campaign-tool", "export-service", "dataservice", "hdfc", "indusind", "internal-notificationservice", "mpinsurance", "internal-export-service", "mp"];
+
 node {
     stage('Git Update: ' + params.Bucket +'-' + params.Version) { // for display purposes
         if ((params.Services == null) || (params.Bucket == null) || (params.Version == null)) {
@@ -61,31 +90,7 @@ node {
     }
 }
 
-parallel (
-    "export-service" : { 
-        node { 
-            if ( (params.Services =~ /^export-service/)  || (params.Services =~ /ALL/)  )    {  
-                def serviceName = 'export-service'
-                stage(serviceName + ' Deploy' ) { // for display purposes
-                    main(serviceName)
-                }   
-            }
-        }
-    },
-
-    "cp" : { 
-        node  { 
-            if ( (params.Services =~ /^cp/)  || (params.Services =~ /ALL/)  )    {  
-                def serviceName = 'cp'
-                stage(serviceName + ' Deploy' ) { // for display purposes
-                    main(serviceName)
-                }
-            } 
-         }
-    }
-)
-
-
+parallelConverge (instanceNames);
 
 node {
     stage('Results') {
