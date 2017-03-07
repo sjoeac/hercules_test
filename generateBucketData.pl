@@ -11,13 +11,6 @@ my $path = $ENV{WORKSPACE} || "/tmp";
 my $bucket1File = "$path/bucket1-" . $tagno .".json";
 my $bucket2File = "$path/bucket2-" . $tagno .".json";
 
-if ((-e $bucket1File ) && ( -e $bucket1File)) {
-    print "Bucket Files already exists\n";
-    print "Bucket1: $bucket1File...\n";
-    print "Bucket2: $bucket2File...\n";
-    exit 0;
-}
-
 my $url = 'http://10.1.25.16:8500/v1/catalog/services';
 my $response = (get $url);
 die "Error connecting to $url" unless defined $response;
