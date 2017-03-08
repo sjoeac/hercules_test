@@ -7,7 +7,6 @@ def runSaltMasterHighState(serviceName, bucketHosts) {
     sh " ssh -o StrictHostKeyChecking=no -i /home/infra/id_ecdsa  infra@10.1.246.251  /bin/bash -c '${commandToRun}' "
 }
 
-
 def main (serviceName){
     if (! fileExists("${WORKSPACE}/jenkins_pipeline_test/Jenkinsfile")) {
         sh "chmod 777 ${WORKSPACE}; cd ${WORKSPACE};git clone https://github.com/sjoeac/jenkins_pipeline_test.git;";
@@ -26,11 +25,15 @@ def main (serviceName){
             // Run Salt Master Commands for High State
             runSaltMasterHighState(serviceName,getFailedHosts);
         }              
+        //sleep 60;
+        def getContainterHealth = sh(script: "${WORKSPACE}@tmp/getContainerHealth.pl ${serviceName} servers", returnStdout: true)
+        if (getContainterHealth =~/B0*/) {
+            sh 'curl -X POST --data-urlencode \'payload={"channel": "#hercules", "username": "jenkins-hercules-bot", "text":  "' + params.Bucket + '[' + params.Version + ']'  + '[' + serviceName + '] Failures: '  +  getContainterHealth + '", "icon_emoji": ":ghost:"}\' https://hooks.slack.com/services/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 ; '    
+            print "Failures:  "  + getContainterHealth
+            sh 'exit 1';
+        }              
+        sh 'if [ "$?" = "0" ]; then echo "${serviceName} deploy has passed"  ; fi '
         
-        sleep 60;
-        def getContainterHealth = sh(script: "${WORKSPACE}@tmp/getContainerHealth.pl ${serviceName} debug", returnStdout: true)
-        print "Container Hosts: HEALTH "  + getContainterHealth;
-        sh 'if [ "$?" = "0" ]; then echo "${serviceName} deploy has passed"; fi '
     }
     else {
         //Get Bucket List for This Tag
@@ -38,31 +41,34 @@ def main (serviceName){
         print "Container Hosts ${env.Bucket}  : "  + bucketHosts
         // Run Salt Master Commands for High State
         runSaltMasterHighState(serviceName,bucketHosts);
-
-        sleep 60;
-        def getContainterHealth = sh(script: "${WORKSPACE}@tmp/getContainerHealth.pl ${serviceName} debug", returnStdout: true)
-        print "Container Hosts: HEALTH "  + getContainterHealth
-        sh 'if [ "$?" = "0" ]; then echo "${serviceName} deploy has passed"; fi '
-
+        //sleep 60;
+        def getContainterHealth = sh(script: "${WORKSPACE}@tmp/getContainerHealth.pl ${serviceName} servers", returnStdout: true)
+        if (getContainterHealth =~/B0*/) {
+            sh 'curl -X POST --data-urlencode \'payload={"channel": "#hercules", "username": "jenkins-hercules-bot", "text":  "' + params.Bucket + '[' + params.Version + ']'  + '[' + serviceName + '] Failures: '  +  getContainterHealth + '", "icon_emoji": ":ghost:"}\' https://hooks.slack.com/services/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 ; '    
+            print "Failures:  "  + getContainterHealth;
+            sh 'exit 1';
+        }              
+        sh 'if [ "$?" = "0" ]; then echo "${serviceName} deploy has passed"  ; fi '
+    
     }
 }
 
 
 def parallelConverge(ArrayList<String> instanceNames) {
     def parallelNodes = [:]
-
     for (int i = 0; i < instanceNames.size(); i++) {
         def instanceName = instanceNames.get(i)
         parallelNodes[instanceName] = this.getNodeForInstance(instanceName)
     }
-
     parallel parallelNodes
 }
+
 
 def Closure getNodeForInstance(String serviceName) {
     return {
         node {
-            if ( (params.Services =~ /^${serviceName}/)  || (params.Services =~ /ALL/)  )    {  
+            if ( (params.Services =~ /${serviceName}/)  || (params.Services =~ /ALL/)  )    {  
+                print "STEP" + serviceName;
                 stage(serviceName + ' deploy' ) { // for display purposes
                     main(serviceName)
                 }   
@@ -77,7 +83,7 @@ def Closure getNodeForInstance(String serviceName) {
 // WORKFLOW
 //***********************************
 
-def instanceNames = ["cassandra", "hdfclimited", "dialerservice", "internal-cds", "exportservice", "cp", "gratter", "newgen", "bb-api", "roboArmService", "insurance-csdb", "notificationservice", "bb-sftp", "txnanalysis", "bankdataupload", "bankdb", "userreviewservice", "icici", "cds", "elasticsearch-prod", "centrelistingservice", "roboticArmService", "axis", "elasticsearch-elk", "csdb", "personalfinanceservice", "consul", "bankbridgeservice", "internal-cp", "campaign-tool", "export-service", "dataservice", "hdfc", "indusind", "internal-notificationservice", "mpinsurance", "internal-export-service", "mp"];
+def instanceNames = ["hdfclimited", "dialerservice", "internal-cds", "exportservice", "cp", "gratter", "newgen", "bb-api", "roboArmService", "insurance-csdb", "notificationservice", "bb-sftp", "txnanalysis", "bankdataupload", "bankdb", "userreviewservice", "icici", "cds", "elasticsearch-prod", "centrelistingservice", "roboticArmService", "axis", "elasticsearch-elk", "csdb", "personalfinanceservice", "consul", "bankbridgeservice", "internal-cp", "campaign-tool", "export-service", "dataservice", "hdfc", "indusind", "internal-notificationservice", "mpinsurance", "internal-export-service", "mp"];
 
 node {
     stage('Git Update: ' + params.Bucket +'-' + params.Version) { // for display purposes
@@ -97,4 +103,3 @@ node {
         sh 'echo "ALL TESTS PASS" exit 0'
     }
 }
-
