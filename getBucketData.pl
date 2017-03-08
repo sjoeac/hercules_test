@@ -7,7 +7,7 @@ use Data::Dumper;
 
 my $tagno = $ARGV[0] or die "Please add <tagno> <bucket1|bucket2> <service> as arguments\n";
 my $bucket = $ARGV[1] or die "Please add <tagno> <bucket1|bucket2> <service> as arguments\n";
-my $service = lc $ARGV[2] or die "Please add <tagno> <bucket1|bucket2> <service>  as arguments\n";
+my $service = $ARGV[2] or die "Please add <tagno> <bucket1|bucket2> <service>  as arguments\n";
 
 my $path = $ENV{WORKSPACE} || "/tmp";
 
