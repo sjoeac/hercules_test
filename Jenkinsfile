@@ -13,14 +13,8 @@ def runSaltMasterHighState(serviceName, bucketHosts) {
 
 
 def main (serviceName){
-    if (! fileExists("${WORKSPACE}/jenkins_pipeline_test/Jenkinsfile")) {
-        sh "cd ${WORKSPACE};git clone git@github.com:sjoeac/jenkins_pipeline_test.git;";
-        sh " cp jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
-    }    
-    else {
-        sh(script: "cd ${WORKSPACE}/jenkins_pipeline_test; git reset --hard HEAD; git pull origin master;", returnStdout: true);
-        sh " cp ${WORKSPACE}/jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
-    }
+    git 'https://github.com/sjoeac/jenkins_pipeline_test.git'
+    sh " cp ${WORKSPACE}/*.pl ${WORKSPACE}@tmp/";
 
     sh(script: " ${WORKSPACE}@tmp/generateBucketData.pl ${env.Version}", returnStdout: true);
     if ( (params.Bucket =~ /failures/)  )    {  
