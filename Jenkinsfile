@@ -3,21 +3,25 @@
 //***********************************
 def runSaltMasterHighState(serviceName, bucketHosts) {
     String deploycommand = ' bb-sites.deploy_build ' + serviceName + ' ' +  params.Version;
-    String commandToRun = '\"sudo salt -L  \"' + bucketHosts + '\"' + deploycommand + '\" '
-    sh " ssh -o StrictHostKeyChecking=no   infra@10.1.246.251  /bin/bash -c '${commandToRun}' "
+    String commandToRun1 = '\"sudo salt -L  \"' + bucketHosts + '\" saltutil.refresh_pillar \" '
+    String commandToRun2 = '\"sudo salt -L  \"' + bucketHosts + '\" saltutil.sync_all \" '
+    String commandToRun3 = '\"sudo salt -L  \"' + bucketHosts + '\"' + deploycommand + '\" '
+    String commandToRun = '\"sudo salt -L  \"' + bucketHosts + '\" cmd.run uptime\" '
+    sh " ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/id_ecdsa  infra@10.1.246.251  /bin/bash -c '${commandToRun}' "
+
 }
 
 
 def main (serviceName){
-    if (! fileExists("${WORKSPACE}/hercules/Jenkinsfile")) {
+    if (! fileExists("${WORKSPACE}/jenkins_pipeline_test/Jenkinsfile")) {
         sh "cd ${WORKSPACE};git clone git@github.com:sjoeac/jenkins_pipeline_test.git;";
-        sh " cp hercules/*.pl ${WORKSPACE}@tmp/";
+        sh " cp jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
     }    
     else {
-        sh(script: "cd ${WORKSPACE}/hercules; git reset --hard HEAD; git pull origin master;", returnStdout: true);
-        sh " cp ${WORKSPACE}/hercules/*.pl ${WORKSPACE}@tmp/";
+        sh(script: "cd ${WORKSPACE}/jenkins_pipeline_test; git reset --hard HEAD; git pull origin master;", returnStdout: true);
+        sh " cp ${WORKSPACE}/jenkins_pipeline_test/*.pl ${WORKSPACE}@tmp/";
     }
-    
+
     sh(script: " ${WORKSPACE}@tmp/generateBucketData.pl ${env.Version}", returnStdout: true);
     if ( (params.Bucket =~ /failures/)  )    {  
         def getFailedHosts = sh(script: "${WORKSPACE}@tmp/getContainerHealth.pl ${serviceName} servers ", returnStdout: true)
@@ -26,7 +30,7 @@ def main (serviceName){
             // Run Salt Master Commands for High State
             runSaltMasterHighState(serviceName,getFailedHosts);
         }              
-        sleep 600;
+        sleep 6;
         def getContainterHealth = sh(script: "${WORKSPACE}@tmp/getContainerHealth.pl ${serviceName} servers", returnStdout: true)
         if (getContainterHealth =~/B0*/) {
             sh 'curl -X POST --data-urlencode \'payload={"channel": "#hercules", "username": "jenkins-hercules-bot", "text":  "' + params.Bucket + '[' + params.Version + ']'  + '[' + serviceName + '] Failures: '  +  getContainterHealth + '", "icon_emoji": ":ghost:"}\' https://hooks.slack.com/services/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 ; '    
@@ -42,7 +46,7 @@ def main (serviceName){
         print "Container Hosts ${env.Bucket}  : "  + bucketHosts
         // Run Salt Master Commands for High State
         runSaltMasterHighState(serviceName,bucketHosts);
-        sleep 600;
+        sleep 6;
         def getContainterHealth = sh(script: "${WORKSPACE}@tmp/getContainerHealth.pl ${serviceName} servers", returnStdout: true)
         if (getContainterHealth =~/B0*/) {
             sh 'curl -X POST --data-urlencode \'payload={"channel": "#hercules", "username": "jenkins-hercules-bot", "text":  "' + params.Bucket + '[' + params.Version + ']'  + '[' + serviceName + '] Failures: '  +  getContainterHealth + '", "icon_emoji": ":ghost:"}\' https://hooks.slack.com/services/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 ; '    
@@ -105,4 +109,5 @@ node {
         sh 'echo "ALL TESTS PASS" exit 0'
     }
 }
+
 
