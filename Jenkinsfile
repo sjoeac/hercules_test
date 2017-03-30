@@ -91,12 +91,12 @@ node {
             print "ERROR: Null Paramaters"; 
             sh 'exit 1'
         }
-        print "DEBUG: parameter Services = " + params.Bucket
+        print "DEBUG: parameter Services = " + params
         print "DEBUG: parameter Services = " +  params.Version
     }
 }
 
-parallelConverge (instanceNames);
+//parallelConverge (instanceNames);
 
 node {
     stage('Results') {
