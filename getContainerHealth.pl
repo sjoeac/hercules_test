@@ -31,10 +31,10 @@ foreach my $key (@{$response}) {
 }
 
 if ((defined $filter) && ($flag =~/servers/i)) {
-    print join (",",@failed_hosts);
+    print join (",",sort @failed_hosts);
 }
 if ((defined $filter) && ($flag =~/exit/i)) {
-    print join (",",@exit_hosts);
+    print join (",",sort @exit_hosts);
 }
 if ((defined $filter) && ($flag =~/debug/i)) {
     print "Service " . $service . " : FAILURES " . Dumper ($filter) . "\n";
